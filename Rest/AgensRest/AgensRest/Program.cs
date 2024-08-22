@@ -1,4 +1,5 @@
 
+using AgensRest.Service;
 using AgentsApi.Data;
 
 namespace AgensRest
@@ -16,6 +17,7 @@ namespace AgensRest
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddDbContext<ApplicationDbContext>();
+            builder.Services.AddScoped<IAgentService, AgentService>();
 
             var app = builder.Build();
 
