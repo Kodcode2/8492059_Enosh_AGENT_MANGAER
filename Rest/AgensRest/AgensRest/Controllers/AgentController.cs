@@ -1,10 +1,11 @@
 ﻿using AgensRest.Models;
 using AgensRest.Service;
 using Microsoft.AspNetCore.Mvc;
+using AgensRest.Dto;
 
 namespace AgensRest.Controllers
 {
-    [Route("[controller]")]
+    [Route("")]
     [ApiController]
     public class AgentController(IAgentService agentService) : ControllerBase
     {
@@ -28,15 +29,15 @@ namespace AgensRest.Controllers
 
 
 
-        [HttpPost("create")]
+        [HttpPost("agents")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<AgentModel>> CreateUser([FromBody] AgentModel model)
+        public async Task<ActionResult<AgentModel>> CreateUser([FromBody] AgentDto agent)
         {
             try
             {
-                var agent = await agentService.CreateAgentAsync(model);
-                return Created("", agent);
+                var Agent = await agentService.CreateAgentAsync(agent);
+                return Created("", Agent);
             }
             catch (Exception ex)
             {

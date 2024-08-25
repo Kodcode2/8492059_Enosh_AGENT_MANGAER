@@ -1,5 +1,7 @@
 ﻿using AgensRest.Models;
+using AgensRest.Dto;
 using AgentsApi.Data;
+
 using Microsoft.EntityFrameworkCore;
 using static AgensRest.Service.AgentService;
 
@@ -12,17 +14,18 @@ namespace AgensRest.Service
         public async Task<List<AgentModel>> GetAllAgentsAsync() =>
             await context.Agents.ToListAsync();
 
-        public async Task<AgentModel?> CreateAgentAsync(AgentModel agent)
+        public async Task<AgentModel?> CreateAgentAsync(AgentDto agent)
         {
-            if (await FindAgentByIdAsync(agent.Id) != null)
+            AgentModel Agent = new AgentModel()
             {
-                throw new Exception($"Agent by the Id {agent.Id} is already exists");
-            }
-            agent.Id = agent.Id;    
-            await context.Agents.AddAsync(agent);
+                Image = agent.PhotoUrl,
+                Nickname = agent.Nickname
+            };
+            await context.Agents.AddAsync(Agent);
             await context.SaveChangesAsync();
-            return agent;
+            return Agent;
         }
+        
 
         public async Task<AgentModel?> FindAgentByIdAsync(int id) =>
             await context.Agents.FirstOrDefaultAsync(u => u.Id == id);
@@ -46,7 +49,7 @@ namespace AgensRest.Service
             return byId;
         }
 
-     
+
     }
 }
 
