@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AgensRest")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b90c028cff54bbe5e7a82cf9cc9c8f33003e32b0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6a9f907e40750b6603d91744639b2dd10d8b90b8")]
 [assembly: System.Reflection.AssemblyProductAttribute("AgensRest")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AgensRest")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

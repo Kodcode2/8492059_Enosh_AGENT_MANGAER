@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AgensRest.Service
 {
-    public class MissionService(ApplicationDbContext context) : IMissionService
+    public class MissionService(ApplicationDBContext context) : IMissionService
     {
             private readonly IMissionService _missionService;
             public async Task<List<MissionModel>> GetAllMissionsAsync() =>
@@ -12,11 +12,11 @@ namespace AgensRest.Service
 
             public async Task<MissionModel?> CreateMissionAsync(MissionModel mission)
             {
-                if (await FindMissionByIdAsync(mission.Id) != null)
+                if (await FindMissionByIdAsync(mission.AgentId) != null)
                 {
-                    throw new Exception($"Mission by the Id {mission.Id} is already exists");
+                    throw new Exception($"Mission by the Id {mission.AgentId} is already exists");
                 }
-                mission.Id = mission.Id;
+                mission.AgentId = mission.AgentId;
                 await context.Missions.AddAsync(mission);
                 await context.SaveChangesAsync();
                 return mission;
@@ -30,7 +30,7 @@ namespace AgensRest.Service
                 MissionModel byId = await FindMissionByIdAsync(id)
                         ?? throw new Exception($"Mission by the id {id} doesnt exists");
                 byId.Agent = mission.Agent;
-                byId.TimeRemaining = mission.TimeRemaining;
+                byId.RemainingTime = mission.RemainingTime;
                 await context.SaveChangesAsync();
                 return byId;
             }

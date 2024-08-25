@@ -5,7 +5,7 @@ using static AgensRest.Service.AgentService;
 
 namespace AgensRest.Service
 {
-    public class AgentService(ApplicationDbContext context) : IAgentService
+    public class AgentService(ApplicationDBContext context) : IAgentService
     {
 
         private readonly IAgentService _agentService;
@@ -32,7 +32,7 @@ namespace AgensRest.Service
             AgentModel byId = await FindAgentByIdAsync(id)
                     ?? throw new Exception($"Agent by the id {id} doesnt exists");
             byId.Nickname = agent.Nickname;
-            byId.PhotoUrl = agent.PhotoUrl;
+            byId.Image = agent.Image;
             await context.SaveChangesAsync();
             return byId;
         }

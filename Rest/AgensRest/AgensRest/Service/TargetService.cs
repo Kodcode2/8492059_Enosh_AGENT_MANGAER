@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AgensRest.Service
 {
-    public class TargetService(ApplicationDbContext context) : ITargetService
+    public class TargetService(ApplicationDBContext context) : ITargetService
     {
 
         private readonly ITargetService _targetService;
@@ -31,8 +31,8 @@ namespace AgensRest.Service
             TargetModel byId = await FindTargetByIdAsync(id)
                     ?? throw new Exception($"Agent by the id {id} doesnt exists");
             byId.Name = target.Name;
-            byId.Position = target.Position;
-            byId.PhotoUrl = target.PhotoUrl;
+            byId.Role = target.Role;
+            byId.Image = target.Image;
             await context.SaveChangesAsync();
             return byId;
         }

@@ -2,6 +2,7 @@
 using AgensRest.Service;
 using AgentsApi.Data;
 
+
 namespace AgensRest
 {
     public class Program
@@ -16,7 +17,7 @@ namespace AgensRest
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            builder.Services.AddDbContext<ApplicationDbContext>();
+            builder.Services.AddDbContext<ApplicationDBContext>();
             builder.Services.AddScoped<IAgentService, AgentService>();
             builder.Services.AddScoped<ITargetService, TargetService>();
 

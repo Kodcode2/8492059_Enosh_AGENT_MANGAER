@@ -15,7 +15,6 @@ namespace AgensRest.Controllers
                 Ok(await missionService.GetAllMissionsAsync());
 
 
-
             [HttpGet("{id}")]
             [ProducesResponseType(StatusCodes.Status200OK)]
             [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -24,9 +23,6 @@ namespace AgensRest.Controllers
                 var agent = await missionService.FindMissionByIdAsync(id);
                 return agent == null ? NotFound($"User by the id {id} dosent exists") : Ok(agent);
             }
-
-
-
 
 
             [HttpPost("create")]
