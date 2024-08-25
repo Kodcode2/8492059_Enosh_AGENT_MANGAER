@@ -1,57 +1,111 @@
-﻿using AgensRest.Models;
+﻿using AgensRest.Dto;
+using AgensRest.Models;
 using AgentsApi.Data;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AgensRest.Service
 {
     public class TargetService(ApplicationDBContext context) : ITargetService
     {
-
-        private readonly ITargetService _targetService;
-        public async Task<List<TargetModel>> GetAllTargetsAsync() =>
-            await context.Targets.ToListAsync();
-
-        public async Task<TargetModel?> CreateAgentAsync(TargetModel target)
+        private readonly Dictionary<string, (int, int)> Direction = new()
         {
-            if (await FindTargetByIdAsync(target.Id) != null)
+            {"n", (0, 1)},
+            {"s", (0, -1)},
+            {"e", (-1, 0)},
+            {"w", (1, 0)},
+            {"ne", (-1, 1)},
+            {"nw", (1, 1)},
+            {"se", (-1, -1)},
+            {"sw", (1, -1)}
+        };
+        public async Task<ActionResult<TargetModel>> DeleteTargetModelAsync(int id)
+        {
+            var target = await context.Targets.FindAsync(id);
+            if (target == null)
             {
-                throw new Exception($"Agent by the Id {target.Id} is already exists");
+                return null;
             }
-            target.Id = target.Id;
-            await context.Targets.AddAsync(target);
+
+            context.Targets.Remove(target);
+            await context.SaveChangesAsync();
+
+            return target;
+        }
+
+
+        public async Task<List<TargetModel>> GetTargetsAsync()
+        {
+            return await context.Targets.ToListAsync();
+        }
+
+        public async Task<IdDto> CreateTargetModel(TargetDto targetDto)
+        {
+            try
+            {
+                TargetModel target = new()
+                {
+                    Image = targetDto.PhotoUrl,
+                    Name = targetDto.Name,
+                    Role = targetDto.Position
+                };
+                await context.Targets.AddAsync(target);
+                await context.SaveChangesAsync();
+                var a = await context.Targets.FirstOrDefaultAsync(A => A.Image == target.Image && A.Name == target.Name && A.Role == target.Role);
+                IdDto idDto = new() { Id = a.Id };
+                return idDto;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<ActionResult<TargetModel>> UpdateTargetAsync(int id, TargetModel targetModel)
+        {
+
+            if (!context.Targets.Any(a => a.Id == id))
+            {
+                return null;
+            }
+            try
+            {
+                var target = await context.Targets.FirstOrDefaultAsync(a => a.Id == id);
+                target.Name = targetModel.Name;
+                target.Role = targetModel.Role;
+                target.Image = targetModel.Image;
+                await context.SaveChangesAsync();
+                return target;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        public async Task<TargetModel> Pin(PinDto pin, int id)
+        {
+            TargetModel? target = await context.Targets.FirstOrDefaultAsync(t => t.Id == id);
+            if (target == null)
+            {
+                throw new Exception("Target not found");
+            }
+            target.X = pin.X;
+            target.Y = pin.Y;
             await context.SaveChangesAsync();
             return target;
         }
 
-        public async Task<TargetModel?> FindTargetByIdAsync(int id) =>
-            await context.Targets.FirstOrDefaultAsync(u => u.Id == id);
 
-        public async Task<TargetModel?> UpdateTargetAsync(int id, TargetModel target)
+        public async Task<TargetModel> FindTargetById(int id)
         {
-            TargetModel byId = await FindTargetByIdAsync(id)
-                    ?? throw new Exception($"Agent by the id {id} doesnt exists");
-            byId.Name = target.Name;
-            byId.Role = target.Role;
-            byId.Image = target.Image;
-            await context.SaveChangesAsync();
-            return byId;
+            TargetModel? target = await context.Targets.FirstOrDefaultAsync(t => t.Id == id);
+            if (target == null)
+            {
+                throw new Exception("Target not found");
+            }
+            return target;
         }
-
-        public async Task<TargetModel?> DeleteTargetAsync(int id)
-        {
-            TargetModel byId = await FindTargetByIdAsync(id)
-                        ?? throw new Exception($"Target by the id {id} doesnt exists");
-            context.Targets.Remove(byId);
-            await context.SaveChangesAsync();
-            return byId;
-        }
-
-        public Task<TargetModel?> CreateTargetAsync(AgentModel agent)
-        {
-            throw new NotImplementedException();
-        }
-
     }
 }
-
-

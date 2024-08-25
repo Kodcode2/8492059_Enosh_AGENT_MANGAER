@@ -5,39 +5,20 @@ using AgensRest.Dto;
 
 namespace AgensRest.Controllers
 {
-    [Route("")]
+    [Route("[controller]")]
     [ApiController]
-    public class AgentController(IAgentService agentService) : ControllerBase
+    public class AgentsController(IAgentService _agentService) : ControllerBase
     {
-        [HttpGet("AllAgents")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<List<AgentModel>>> GetAll() =>
-            Ok(await agentService.GetAllAgentsAsync());
 
 
 
-        [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<AgentModel>> GetById(int id)
-        {
-            var agent = await agentService.FindAgentByIdAsync(id);
-            return agent == null ? NotFound($"User by the id {id} dosent exists") : Ok(agent);
-        }
-
-
-
-
-
-        [HttpPost("agents")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<AgentModel>> CreateUser([FromBody] AgentDto agent)
+        [HttpPut("update-agent/{id}")]
+        public async Task<IActionResult> PutAgentModel(int id, AgentModel agent)
         {
             try
             {
-                var Agent = await agentService.CreateAgentAsync(agent);
-                return Created("", Agent);
+                await _agentService.UpdateAgentAsync(id, agent);
+                return Ok(agent);
             }
             catch (Exception ex)
             {
@@ -45,36 +26,46 @@ namespace AgensRest.Controllers
             }
         }
 
-        [HttpPut("update/{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<AgentModel>> Update(int id, [FromBody] AgentModel user)
+        [HttpPost]
+        public async Task<ActionResult<IdDto>> PostAgentModel([FromBody] AgentDto agentDto)
         {
             try
             {
-                var updated = await agentService.UpdateAgentAsync(id, user);
-                return Ok(updated);
+
+                return Created("success", await _agentService.CreateAgentModel(agentDto));
             }
             catch (Exception ex)
             {
-                return NotFound(ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 
-        [HttpDelete("delete/{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<AgentModel>> Delete(int id)
+        [HttpDelete("delete-agent/{id}")]
+        public async Task<IActionResult> DeleteAgentModel(int id)
         {
             try
             {
-                return Ok(await agentService.DeleteAgentAsync(id));
+                await _agentService.DeleteAgentModelAsync(id);
+                return NoContent();
             }
             catch (Exception ex)
             {
-                return NotFound(ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 
+        [HttpPut("{id}/pin")]
+        public async Task<ActionResult<TargetModel>> PinAsync(PinDto pinDto, int id)
+        {
+            try
+            {
+                return Ok(await _agentService.Pin(pinDto, id));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
+

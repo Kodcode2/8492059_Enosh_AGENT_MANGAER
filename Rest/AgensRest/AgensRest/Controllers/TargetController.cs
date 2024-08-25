@@ -1,43 +1,21 @@
-﻿using AgensRest.Models;
+﻿using AgensRest.Dto;
+using AgensRest.Models;
 using AgensRest.Service;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AgensRest.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
-    public class TargetController(ITargetService targetService) : ControllerBase
+    public class TargetsController(ITargetService targetService) : ControllerBase
     {
-        [HttpGet("AllTargets")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<List<AgentModel>>> GetAll() =>
-            Ok(await targetService.GetAllTargetsAsync());
 
-
-
-        [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<AgentModel>> GetById(int id)
+        [HttpPut("update-target/{id}")]
+        public async Task<ActionResult<TargetModel>> PutTargetModel(int id, [FromBody] TargetModel target)
         {
-            var agent = await targetService.FindTargetByIdAsync(id);
-            return agent == null ? NotFound($"User by the id {id} dosent exists") : Ok(agent);
-        }
-
-
-
-
-
-        [HttpPost("create")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<AgentModel>> CreateUser([FromBody] AgentModel model)
-        {
-            try
-            {
-                var agent = await targetService.CreateTargetAsync(model);
-                return Created("", agent);
+            try { 
+                var a = await targetService.UpdateTargetAsync(id, target);
+                return Ok(a);
             }
             catch (Exception ex)
             {
@@ -45,36 +23,47 @@ namespace AgensRest.Controllers
             }
         }
 
-        [HttpPut("update/{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<TargetModel>> Update(int id, [FromBody] TargetModel target)
+        [HttpPost]
+        public async Task<ActionResult<long>> Create([FromBody] TargetDto targetDto)
         {
             try
             {
-                var updated = await targetService.UpdateTargetAsync(id, target);
-                return Ok(updated);
+                var t = await targetService.CreateTargetModel(targetDto);
+                return Created("success", t);
             }
             catch (Exception ex)
             {
-                return NotFound(ex.Message);
+                var x = 0;
+                return BadRequest(ex.Message);
             }
         }
 
-        [HttpDelete("delete/{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<AgentModel>> Delete(int id)
+        [HttpDelete("delete-target/{id}")]
+        public async Task<IActionResult> DeleteTargetModel(int id)
         {
             try
             {
-                return Ok(await targetService.DeleteTargetAsync(id));
+                await targetService.DeleteTargetModelAsync(id);
+                return NoContent();
             }
             catch (Exception ex)
             {
-                return NotFound(ex.Message);
+                return BadRequest(ex.Message);
             }
+
         }
 
+        [HttpPut("{id}/pin")]
+        public async Task<ActionResult<TargetModel>> PinAsync(PinDto pinDto, int id)
+        {
+            try
+            {
+                return Ok(await targetService.Pin(pinDto, id));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
