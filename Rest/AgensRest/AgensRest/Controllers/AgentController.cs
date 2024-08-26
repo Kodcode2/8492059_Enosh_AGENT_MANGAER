@@ -10,6 +10,24 @@ namespace AgensRest.Controllers
     public class AgentsController(IAgentService _agentService) : ControllerBase
     {
 
+        [HttpGet]
+        public async Task<ActionResult<List<AgentModel>>> GetAgents()
+        {
+            return Ok(await _agentService.GetAgentsAsync());
+        }
+
+        [HttpGet("get-agent/{id}")]
+        public async Task<ActionResult<AgentModel>> GetAgentModel(int id)
+        {
+            try
+            {
+                return Ok(await _agentService.GetAgentModelAsync(id));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
 
         [HttpPut("update-agent/{id}")]
@@ -66,6 +84,19 @@ namespace AgensRest.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPut("{id}/move")]
+        public async Task<ActionResult<TargetModel>>
+            MoveAsync(DirectionsDto directions, int id)
+        {
+            try
+            {
+                return Ok(await _agentService.MoveAgent(id, directions));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
-

@@ -30,6 +30,17 @@ namespace AgensRest.Service
             return await context.Agents.ToListAsync();
         }
 
+        public async Task<ActionResult<AgentModel>> GetAgentModelAsync(int id)
+        {
+            var agentModel = await context.Agents.FindAsync(id);
+
+            if (agentModel == null)
+            {
+                return null;
+            }
+
+            return agentModel;
+        }
 
         public async Task<ActionResult<AgentModel>> UpdateAgentAsync(int id, AgentModel agentModel)
         {
@@ -67,8 +78,31 @@ namespace AgensRest.Service
             return agentModel;
         }
 
+        private bool AgentModelExists(int id)
+        {
+            return context.Agents.Any(e => e.Id == id);
+        }
 
-    
+        public async Task<AgentModel> MoveAgent(int id, DirectionsDto directionDto)
+        {
+            AgentModel? agent = await context.Agents.FirstOrDefaultAsync(t => t.Id == id);
+            if (agent == null)
+            {
+                throw new Exception("Target not found");
+            }
+            var (x, y) = Direction[directionDto.Direction];
+            agent.X += x;
+            agent.Y += y;
+            if (agent.X < 0 || agent.X > 1000 || agent.Y < 0 || agent.Y > 1000)
+            {
+                throw new Exception($"Range over, the agent is in: ({agent.X},{agent.Y})");
+            }
+            await context.SaveChangesAsync();
+            //var missionList = await missionService.FindMissionByIdAsync(id);
+            return agent;
+        }
+
+
         public async Task<AgentModel> Pin(PinDto pin, int id)
         {
             AgentModel? agent = await context.Agents.FirstOrDefaultAsync(t => t.Id == id);
@@ -103,6 +137,17 @@ namespace AgensRest.Service
             {
                 throw new Exception(ex.Message);
             }
+        }
+
+
+        public async Task<bool> IsAgentFree(int id)
+        {
+            var agent = await FindAgentById(id);
+            if (agent.Status == AgentStatus.Dormant)
+            {
+                return true;
+            }
+            return false;
         }
 
 

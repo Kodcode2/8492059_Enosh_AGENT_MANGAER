@@ -9,6 +9,18 @@ namespace AgensRest.Controllers
     [ApiController]
     public class MissionController(IMissionService missionService) : ControllerBase
     {
-  
+        [HttpPost("update")]
+        public async Task<ActionResult> Create(MissionModel mission)
+        {
+            try
+            {
+                await missionService.CreateMission(mission);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
     }
 }

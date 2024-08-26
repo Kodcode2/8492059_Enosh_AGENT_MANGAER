@@ -1,6 +1,7 @@
 ﻿using AgensRest.Dto;
 using AgensRest.Models;
 using AgensRest.Service;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AgensRest.Controllers
@@ -10,10 +11,30 @@ namespace AgensRest.Controllers
     public class TargetsController(ITargetService targetService) : ControllerBase
     {
 
+        [HttpGet]
+        public async Task<ActionResult<List<TargetModel>>> GetTarget()
+        {
+            return Ok(await targetService.GetTargetsAsync());
+        }
+
+        [HttpGet("get-target/{id}")]
+        public async Task<ActionResult<TargetModel>> GetTargetModel(int id)
+        {
+            try
+            {
+                return Ok(await targetService.GetTargetModelAsync(id));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpPut("update-target/{id}")]
         public async Task<ActionResult<TargetModel>> PutTargetModel(int id, [FromBody] TargetModel target)
         {
-            try { 
+            try
+            {
                 var a = await targetService.UpdateTargetAsync(id, target);
                 return Ok(a);
             }
@@ -24,7 +45,7 @@ namespace AgensRest.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<long>> Create([FromBody] TargetDto targetDto)
+        public async Task<ActionResult<int>> Create([FromBody] TargetDto targetDto)
         {
             try
             {
@@ -59,6 +80,20 @@ namespace AgensRest.Controllers
             try
             {
                 return Ok(await targetService.Pin(pinDto, id));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("{id}/move")]
+        public async Task<ActionResult<TargetModel>>
+            MoveAsync(DirectionsDto directions, int id)
+        {
+            try
+            {
+                return Ok(await targetService.MoveTarget(id, directions));
             }
             catch (Exception ex)
             {

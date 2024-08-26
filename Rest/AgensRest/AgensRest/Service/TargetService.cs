@@ -33,6 +33,17 @@ namespace AgensRest.Service
             return target;
         }
 
+        public async Task<ActionResult<TargetModel>> GetTargetModelAsync(int id)
+        {
+            var target = await context.Targets.FindAsync(id);
+
+            if (target == null)
+            {
+                return null;
+            }
+
+            return target;
+        }
 
         public async Task<List<TargetModel>> GetTargetsAsync()
         {
@@ -83,6 +94,25 @@ namespace AgensRest.Service
             }
         }
 
+        public async Task<TargetModel> MoveTarget(int id, DirectionsDto directionDto)
+        {
+            TargetModel? target = await context.Targets.FirstOrDefaultAsync(t => t.Id == id);
+            if (target == null)
+            {
+                throw new Exception("Target not found");
+            }
+            var (x, y) = Direction[directionDto.Direction];
+            target.X += x;
+            target.Y += y;
+            if (target.X < 0 || target.X > 1000 || target.Y < 0 || target.Y > 1000)
+            {
+                throw new Exception($"Range over, the target is in:" +
+                    $" ({target.X},{target.Y})");
+            }
+            await context.SaveChangesAsync();
+
+            return target;
+        }
 
         public async Task<TargetModel> Pin(PinDto pin, int id)
         {
@@ -97,6 +127,17 @@ namespace AgensRest.Service
             return target;
         }
 
+        public async Task<bool> IsTargetValid(TargetModel target)
+        {
+            if (context.Targets.Any(t => t.Id == target.Id))
+            {
+                var a = await context.Missions.Where(m => m.Status == 0).ToListAsync();
+                var b = a.Select(a => a.TargetId).ToList();
+                if (b.Contains(target.Id))
+                { return true; }
+            }
+            return false;
+        }
 
         public async Task<TargetModel> FindTargetById(int id)
         {
